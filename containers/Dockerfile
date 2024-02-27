@@ -38,4 +38,7 @@ RUN python3 -m pip install xarray
 RUN mkdir -p /sync
 RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py
 
+RUN mkdir -p /home/hawaii_climate_products_container/preliminary/data_aqs
+ADD /data_aqs /home/hawaii_climate_products_container/preliminary/data_aqs
+
 ADD /tools /sync
