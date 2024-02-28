@@ -41,4 +41,10 @@ RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -
 RUN mkdir -p /home/hawaii_climate_products_container/preliminary/data_aqs
 ADD /data_aqs /home/hawaii_climate_products_container/preliminary/data_aqs
 
+RUN mkdir -p /home/hawaii_climate_products_container/preliminary/air_temp/data_outputs
+ADD /data_outputs /home/hawaii_climate_products_container/preliminary/air_temp/data_outputs
+
+RUN mkdir -p /home/hawaii_climate_products_container/preliminary/air_temp/working_data
+ADD /working_data /home/hawaii_climate_products_container/preliminary/air_temp/working_data
+
 ADD /tools /sync
