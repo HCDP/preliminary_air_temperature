@@ -2,7 +2,6 @@ import rasterio
 import pytz
 import pandas as pd
 import numpy as np
-import sys
 from datetime import datetime, timedelta
 
 MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
@@ -14,21 +13,10 @@ MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_
 VAR_LIST = ['Tmax','Tmin']
 ISL_DICT = {'BI':['BI'],'KA':['KA'],'MN':['MA','MO','LA','KO'],'OA':['OA']}
 
-if len(sys.argv) > 1:
-    input_date = sys.argv[1]
-    dt = pd.to_datetime(input_date)
-    prev_day_day = dt.strftime('%Y%m%d')
-    prev_day_monyr = dt.strftime('%Y_%m')
-    year_str = dt.strftime('%Y')
-    mon_str = dt.strftime('%m')
-else:
-    hst = pytz.timezone('HST')
-    today = datetime.today().astimezone(hst)
-    prev_day = today - timedelta(days=1)
-    prev_day_day = prev_day.strftime('%Y%m%d')
-    prev_day_monyr = prev_day.strftime('%Y_%m')
-    year_str = prev_day.strftime('%Y')
-    mon_str = prev_day.strftime('%m')
+hst = pytz.timezone('HST')
+today = datetime.today().astimezone(hst)
+prev_day = today - timedelta(days=1)
+prev_day_monyr = prev_day.strftime('%Y_%m')
 
 master_df = pd.read_csv(MASTER_LINK)
 master_df = master_df.set_index('SKN')

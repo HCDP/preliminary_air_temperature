@@ -47,10 +47,7 @@ if __name__=="__main__":
     #Air temp daily dependencies
     src_url = DEPEND_DIR + "dependencies.tar.gz"
     dest_path = LOCAL_DEPEND + "dependencies.tar.gz"
-    cmd = ["wget",src_url]
+    cmd = ["wget",src_url,"-O",dest_path]
     subprocess.call(cmd)
-    cmd = ["tar","-xvf","dependencies.tar.gz"]
-    subprocess.call(cmd)
-    dpath =  LOCAL_DEPEND +"/dependencies"
-    cmd =["cp", "-r", "dependencies/*",dpath] 
+    cmd = ["tar","-xvf",dest_path,"-C",LOCAL_DEPEND]
     subprocess.call(cmd)
