@@ -12,7 +12,7 @@ import pytz
 import pandas as pd
 from datetime import datetime, timedelta
 
-PARENT_DIR = r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary_test/'
+PARENT_DIR = r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary/'
 REMOTE_BASEURL =r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/temperature/'
 LOCAL_PARENT = r'/home/hawaii_climate_products_container/preliminary/'
 LOCAL_DATA_AQS = LOCAL_PARENT + r'air_temp/working_data/'
