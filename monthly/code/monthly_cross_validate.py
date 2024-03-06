@@ -102,9 +102,11 @@ def cross_validation(prediction,predictor,varname,model,iCode,threshold=2.5):
 
     #cv_data now populated for all target island stations
     #Include non-validated training data
+    print(cv_data)
     non_target_isl = prediction[~prediction['Island'].isin(isl_list)].index.values
-    cv_data.loc[non_target_isl,'ObservedTemp'] = prediction.loc[non_target_isl,varname]
-    cv_data.loc[non_target_isl,'ValidatedStation'] = 'FALSE'
+    if non_target_isl.shape[0]>0:
+        cv_data.loc[non_target_isl,'ObservedTemp'] = prediction.loc[non_target_isl,varname]
+        cv_data.loc[non_target_isl,'ValidatedStation'] = 'FALSE'
     
     return cv_data
 
@@ -439,6 +441,7 @@ def main_tmean_monthly_cv(date_str,iCode):
     cv_tmean.loc[cv_tmean.index.isin(valid_inds),'ValidatedStation'] = 'TRUE'
     cv_tmean.loc[~cv_tmean.index.isin(valid_inds),'ValidatedStation'] = 'FALSE'
 
+
     meta_tmean = meta_table.loc[shared_inds]
     cv_tmean = meta_tmean.join(cv_tmean,how='left')
     
@@ -465,6 +468,8 @@ if __name__ == '__main__':
         date_str = dt.strftime('%Y-%m-%d')
         print(date_str)
         
+        cv_data = main_monthly_cv(varname,date_str,iCode)
+        quit()
         try:
             if varname == 'Tmean':
                 cv_data = main_tmean_monthly_cv(date_str,iCode)
