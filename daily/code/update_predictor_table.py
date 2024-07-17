@@ -33,7 +33,9 @@ for varname in VAR_LIST:
     new_station_data = new_station_data.set_index('SKN')
     all_stn_inds = new_station_data.index.values
 
-    new_stns = np.setdiff1d(all_stn_inds,old_inds)
+    all_new_stns = np.setdiff1d(all_stn_inds,old_inds)
+    #applies a check to ensure only adding valid ids
+    new_stns = np.intersect1d(all_new_stns,master_df.index.values)
     if new_stns.shape[0] < 1:
         continue
     else:

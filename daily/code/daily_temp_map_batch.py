@@ -262,7 +262,8 @@ def sort_dates(df,meta_cols):
     return sorted_df
 
 def generate_county_map(iCode, varname, params, date_str, output_dir=None):
-
+    master_df = pd.read_csv(MASTER_LINK)
+    master_df = master_df.set_index('SKN')
     if output_dir == None:
         map_dir = MAP_OUTPUT_DIR + varname + '/' + iCode.upper() + '/'
         se_dir = SE_OUTPUT_DIR + varname + '_se/' + iCode.upper() + '/'
@@ -335,6 +336,8 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
     target_isl_qc = unflagged_temp[unflagged_temp['Island'].isin(isl_list)]
 
     if exists(qc_temp_file):
+        mon_st = today_dt.to_period('M').to_timestamp()
+        date_cols = pd.date_range(mon_st,today_dt)
         temp_qc_prev = pd.read_csv(qc_temp_file)
         temp_qc_prev = temp_qc_prev.set_index('SKN')
         #print('prev file read',temp_qc_prev)
@@ -342,9 +345,16 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
         prev_data_cols = [col for col in list(temp_qc_prev.columns) if col not in meta_cols]
         dt_cols = pd.to_datetime([col.split('X')[1] for col in prev_data_cols])
         temp_qc_prev.rename(columns=dict(zip(prev_data_cols,dt_cols)),inplace=True)
+        #Cross check old for invalid indices in master and remove invalid indices
+        check_prev = np.intersect1d(temp_qc_prev.index.values,master_df.index.values)
+        temp_qc_prev = temp_qc_prev.loc[check_prev]
         prev_inds = temp_qc_prev.index.values
+        #Cross check incoming
+        check_incoming = np.intersect1d(target_isl_qc.index.values,master_df.index.values)
+        target_isl_qc = target_isl_qc.loc[check_incoming]
+        #Create updated qc dataframe with checked indices
         new_inds = np.union1d(prev_inds,target_isl_qc.index.values)
-        new_temp_qc = pd.DataFrame(index=new_inds)
+        new_temp_qc = pd.DataFrame(index=new_inds,columns=date_cols)
         new_temp_qc.index.name = 'SKN'
         #Backfill prior
         new_temp_qc.loc[temp_qc_prev.index,temp_qc_prev.columns] = temp_qc_prev
