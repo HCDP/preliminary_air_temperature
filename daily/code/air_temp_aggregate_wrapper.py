@@ -68,8 +68,8 @@ if __name__=='__main__':
         proc_tmax_file_name = '_'.join((TMAX_VARNAME,src,year,mon,'processed')) + '.csv'
         #[SET_DIR]
         source_processed_dir = PROC_DATA_DIR + src + '/'
-        tmin_agg_df,tmin_stns = aggregate_input(TMIN_VARNAME,proc_tmin_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE)
-        tmax_agg_df,tmax_stns = aggregate_input(TMAX_VARNAME,proc_tmax_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE)
+        tmin_agg_df,tmin_stns = aggregate_input(TMIN_VARNAME,proc_tmin_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE,date_str=date_str)
+        tmax_agg_df,tmax_stns = aggregate_input(TMAX_VARNAME,proc_tmax_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE,date_str=date_str)
         tmin_stns_by_src[src] = tmin_stns
         tmax_stns_by_src[src] = tmax_stns
 
