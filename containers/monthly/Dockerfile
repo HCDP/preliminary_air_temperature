@@ -7,7 +7,7 @@ RUN mkdir -p /home/hawaii_climate_products_container/preliminary/air_temp/monthl
 ADD /monthly /home/hawaii_climate_products_container/preliminary/air_temp/monthly
 
 # Get the container's upload config as specified in the code repo.
-ADD /containers/monthly/configs/upload/upload_config.json /sync/upload_config.json
+ADD /containers/monthly/configs/upload.json /sync/upload.json
 
 # Add the task wrapper script.
 ADD /containers/monthly/task.sh /actor/task.sh
