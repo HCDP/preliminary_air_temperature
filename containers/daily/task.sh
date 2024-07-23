@@ -39,7 +39,7 @@ python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/d
 
 echo "[task.sh] [4/5] Preparing to upload data."
 cd /sync
-python3 inject_upload_config.py upload.json $CUSTOM_DATE
+python3 inject_upload_config.py config.json $CUSTOM_DATE
 
 echo "[task.sh] [5/5] Uploading data."
 python3 upload.py
