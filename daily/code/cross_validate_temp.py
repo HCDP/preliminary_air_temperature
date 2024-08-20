@@ -262,7 +262,7 @@ def write_meta_text(varname,date_str,meta):
     #Format keywords and credits
     kw_list = ', '.join([county_list,'Hawaii',temp_mode[varname]+' temperature prediction','daily temperature','temperature','climate','linear regression'])
     
-    credit_statement = 'All data produced by University of Hawaii at Manoa Dept. of Geography and the Enviroment, Ecohydology Lab in collaboration with the Water Resource Research Center (WRRC). Support for the Hawai‘i EPSCoR Program is provided by the Hawaii Emergency Management Agency.'
+    credit_statement = 'All data are produced by the University of Hawai‘i at Manoa with the Water Resources Research Center (WRRC) and the Dept. of Geography and the Environment Ecohydrology Lab. This work is supported by the ChangeHI program, funded by NSF EPSCoR Research Infrastructure Improvement Award OIA-2149133.'
     contact_list = 'Keri Kodama (kodamak8@hawaii.edu), Matthew Lucas (mplucas@hawaii.edu), Ryan Longman (rlongman@hawaii.edu), Sayed Bateni (smbateni@hawaii.edu), Thomas Giambelluca (thomas@hawaii.edu)'
     
     #Arrange all meta fields and write to file
