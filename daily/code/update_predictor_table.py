@@ -3,6 +3,7 @@ import pytz
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from sys import argv
 
 MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
 DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
@@ -13,10 +14,17 @@ MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_
 VAR_LIST = ['Tmax','Tmin']
 ISL_DICT = {'BI':['BI'],'KA':['KA'],'MN':['MA','MO','LA','KO'],'OA':['OA']}
 
-hst = pytz.timezone('HST')
-today = datetime.today().astimezone(hst)
-prev_day = today - timedelta(days=1)
-prev_day_monyr = prev_day.strftime('%Y_%m')
+
+if len(argv) > 1:
+    input_date = argv[1]
+    dt = pd.to_datetime(input_date)
+    monyr_str = dt.strftime('%Y_%m')
+else:
+    #Set date to previous 24 hours
+    hst = pytz.timezone('HST')
+    today = datetime.today().astimezone(hst)
+    prev_day = today - timedelta(days=1)
+    monyr_str = prev_day.strftime('%Y_%m')
 
 master_df = pd.read_csv(MASTER_LINK)
 master_df = master_df.set_index('SKN')
@@ -28,7 +36,7 @@ for varname in VAR_LIST:
     old_inds = old_pred_df.index.values
     pred_cols = old_pred_df.columns
 
-    new_station_file = RUN_MASTER_DIR + '_'.join(('daily',varname,prev_day_monyr)) + '.csv'
+    new_station_file = RUN_MASTER_DIR + '_'.join(('daily',varname,monyr_str)) + '.csv'
     new_station_data = pd.read_csv(new_station_file)
     new_station_data = new_station_data.set_index('SKN')
     all_stn_inds = new_station_data.index.values
