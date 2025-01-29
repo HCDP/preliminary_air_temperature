@@ -175,7 +175,7 @@ def output_tiff(data,base_tiff_name,out_tiff_name,tiff_shape):
     cols,rows = tiff_shape
     ds = gdal.Open(base_tiff_name)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32)
+    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32, options = ["COMPRESS=LZW"])
     # sets same geotransform as input
     outdata.SetGeoTransform(ds.GetGeoTransform())
     outdata.SetProjection(ds.GetProjection())  # sets same projection as input
