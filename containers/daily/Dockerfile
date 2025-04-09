@@ -11,6 +11,8 @@ ADD /containers/daily/configs/upload.json /sync/config.json
 
 # Add the task wrapper script.
 ADD /containers/daily/task.sh /actor/task.sh
+ADD /containers/daily/task_archival.sh /actor/task_archival.sh
+ADD /containers/daily/task_current.sh /actor/task_current.sh
 
 # This container is intended to run the task wrapper at launch, unless otherwise specified at run-time.
 CMD [ "/bin/bash", "/actor/task.sh" ]

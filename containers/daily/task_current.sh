@@ -7,6 +7,12 @@ python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/d
 echo "---temp_map_wget.py---"
 python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/temp_map_wget.py $CUSTOM_DATE
 cp -rf dependencies/* /home/hawaii_climate_products_container/preliminary/air_temp/daily/dependencies
+echo "---hads_temp_parse.py---"
+python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/hads_temp_parse.py $CUSTOM_DATE
+echo "---madis_temp_parse.py---"
+python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/madis_temp_parse.py $CUSTOM_DATE
+echo "---air_temp_aggregate_wrapper.py---"
+python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/air_temp_aggregate_wrapper.py $CUSTOM_DATE
 
 echo "[task.sh] [3/5] Mapping Airtemp data on the daily timeframe."
 cd /home/hawaii_climate_products_container/
