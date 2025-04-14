@@ -15,5 +15,5 @@ if [[ $(date -d "$CUSTOM_DATE" +%s) -lt $(date -d "2019-01-01" +%s) ]]; then
   echo "Using archival workflow"
   bash $(dirname $0)/task_archival.sh
 else
-  bash $(dirname $0)/test_current.sh
+  bash $(dirname $0)/task_current.sh
 fi
