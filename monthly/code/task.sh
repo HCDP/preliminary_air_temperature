@@ -1,0 +1,66 @@
+#!/bin/bash
+
+echo "[task.sh] [1/?] Starting Execution."
+export TZ="HST"
+echo "It is currently $(date)."
+if [ $CUSTOM_DATE ]; then
+    echo "An aggregation date was provided by the environment."
+else
+    export CUSTOM_DATE=$(date -d "1 day ago" --iso-8601)
+    echo "No aggregation date was provided by the environment. Defaulting to yesterday."
+fi
+echo "Aggregation date is: " $CUSTOM_DATE
+#RENAME .ENV AS NEEDED
+source /workspace/envs/dev.env
+
+echo "[task.sh] [2/?] Fetching dependencies and station data."
+python3 -W ignore /workspace/code/monthly_map_wget.py $CUSTOM_DATE
+
+echo "[task.sh] [3/?] Aggregating daily station to monthly and updating file."
+python3 -W ignore /workspace/code/monthly_stn_data.py $CUSTOM_DATE
+
+echo "[task.sh] [4/?] Running map workflow, all counties, all aggregations"
+python3 -W ignore /workspace/code/monthly_from_daily.py bi max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa max $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/monthly_from_daily.py bi min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa min $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/monthly_from_daily.py bi mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa mean $CUSTOM_DATE
+
+echo "[task.sh] [5/?] Creating county metadata, all aggregations"
+python3 -W ignore /workspace/code/meta_data.py bi max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa max $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/meta_data.py bi min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa min $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/meta_data.py bi mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa mean $CUSTOM_DATE
+
+echo "[task.sh] [6/?] Creating statewide mosaic, all aggregations"
+python3 -W ignore /workspace/code/statewide_mosaic.py max $CUSTOM_DATE
+python3 -W ignore /workspace/code/statewide_mosaic.py min $CUSTOM_DATE
+python3 -W ignore /workspace/code/statewide_mosaic.py mean $CUSTOM_DATE
+
+echo "[task.sh] [7/?] Preparing upload config."
+cd /sync
+python3 inject_upload_config.py config.json $CUSTOM_DATE
+
+echo "[task.sh] [8/?] Uploading data."
+python3 upload.py
+
+echo "[task.sh] All done!"

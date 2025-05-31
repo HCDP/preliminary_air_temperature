@@ -5,8 +5,9 @@ import numpy as np
 from os.path import exists
 from datetime import datetime, timedelta
 #DEFINE CONSTANTS-------------------------------------------------------------
-SRC_DIR = '/home/hawaii_climate_products_container/preliminary/air_temp/data_outputs/tables/station_data/daily/raw_qc/statewide/'
-OUTPUT_DIR = '/home/hawaii_climate_products_container/preliminary/air_temp/data_outputs/tables/station_data/monthly/raw_qc/statewide/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+SRC_DIR = MASTER_DIR
+OUTPUT_DIR = MASTER_DIR
 MASTER_META = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 #END CONSTANTS----------------------------------------------------------------
 
@@ -42,7 +43,7 @@ def sort_dates(df,meta_cols):
     Dates formatted as X%Y.%m.%d
     """
     date_cols = [col for col in list(df.columns) if col not in meta_cols]
-    date_keys_sorted = sorted(pd.to_datetime([dt.split('X')[1] for dt in date_cols]))
+    date_keys_sorted = sorted([pd.to_datetime(dt.split('X')[1],format='%Y.%m') for dt in date_cols])
     date_cols_sorted = [dt.strftime('X%Y.%m') for dt in date_keys_sorted]
     sorted_cols = meta_cols + date_cols_sorted
     sorted_df = df[sorted_cols]
@@ -125,3 +126,8 @@ if __name__=="__main__":
     #based on what month it is, create previous full month's monthly mean, append to year file
     update_monthly_file(month_st,'Tmin')
     update_monthly_file(month_st,'Tmax')
+
+
+
+
+

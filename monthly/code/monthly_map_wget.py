@@ -1,6 +1,7 @@
 """
 Runs prior to mapping workflow
 """
+import os
 import sys
 import subprocess
 import pytz
@@ -9,15 +10,12 @@ from pandas import to_datetime
 
 REMOTE_BASEURL =r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/temperature/'
 DEPEND_DIR = r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/temperature/'
-LOCAL_PARENT = r'/home/hawaii_climate_products_container/preliminary/'
-LOCAL_DEPEND = LOCAL_PARENT + r'air_temp/monthly/'
-LOCAL_TEMP = LOCAL_PARENT + r'air_temp/data_outputs/tables/station_data/daily/raw_qc/statewide/'
-LOCAL_MONTH = LOCAL_PARENT + r'air_temp/data_outputs/tables/station_data/monthly/raw_qc/statewide/'
+LOCAL_PARENT = os.environ.get("PROJECT_ROOT")
 
 if __name__=="__main__":
     if len(sys.argv) > 1:
         input_date = sys.argv[1]
-        dt = to_datetime(input_date, format="%Y-%m-%d")
+        dt = to_datetime(input_date)
         this_year = dt.year
         this_mon = dt.month
         month_st = datetime(this_year,this_mon,1)
@@ -48,35 +46,35 @@ if __name__=="__main__":
     #Tmin daily stations pull
     src_url = REMOTE_BASEURL + r'min/day/statewide/partial/station_data/'+year_str+r'/'+mon_str+r'/'
     filename = src_url + r'_'.join(('temperature','min','day_statewide_partial_station_data',year_str,mon_str)) + r'.csv'
-    local_name = LOCAL_TEMP + r'_'.join(('daily','Tmin',year_str,mon_str,'qc')) + r'.csv'
+    local_name = LOCAL_PARENT + r'_'.join(('daily','Tmin',year_str,mon_str,'qc')) + r'.csv'
     cmd = ["wget",filename,"-O",local_name]
     subprocess.call(cmd)
 
     #Tmax daily stations pull
     src_url = REMOTE_BASEURL + r'max/day/statewide/partial/station_data/'+year_str+r'/'+mon_str+r'/'
     filename = src_url + r'_'.join(('temperature','max','day_statewide_partial_station_data',year_str,mon_str)) + r'.csv'
-    local_name = LOCAL_TEMP + r'_'.join(('daily','Tmax',year_str,mon_str,'qc')) + r'.csv'
+    local_name = LOCAL_PARENT + r'_'.join(('daily','Tmax',year_str,mon_str,'qc')) + r'.csv'
     cmd = ["wget",filename,"-O",local_name]
     subprocess.call(cmd)
 
     #Tmin monthly stations pull
     src_url = REMOTE_BASEURL + r'min/month/statewide/partial/station_data/'+year_str+r'/'
     filename = src_url + r'_'.join(('temperature','min','month_statewide_partial_station_data',year_str))+r'.csv'
-    local_name = LOCAL_MONTH + r'_'.join(('monthly','Tmin',year_str,'qc'))+r'.csv'
+    local_name = LOCAL_PARENT + r'_'.join(('monthly','Tmin',year_str,'qc'))+r'.csv'
     cmd = ["wget",filename,"-O",local_name]
     subprocess.call(cmd)
 
     #Tmax monthly stations pull
     src_url = REMOTE_BASEURL + r'max/month/statewide/partial/station_data/'+year_str+r'/'
     filename = src_url + r'_'.join(('temperature','max','month_statewide_partial_station_data',year_str))+r'.csv'
-    local_name = LOCAL_MONTH + r'_'.join(('monthly','Tmax',year_str,'qc'))+r'.csv'
+    local_name = LOCAL_PARENT + r'_'.join(('monthly','Tmax',year_str,'qc'))+r'.csv'
     cmd = ["wget",filename,"-O",local_name]
     subprocess.call(cmd)
 
     #Air temp daily dependencies
     src_url = DEPEND_DIR + "dependencies.tar.gz"
-    dest_path = LOCAL_DEPEND + "dependencies.tar.gz"
+    dest_path = LOCAL_PARENT + "dependencies.tar.gz"
     cmd = ["wget",src_url,"-O",dest_path]
     subprocess.call(cmd)
-    cmd = ["tar","-xvf",dest_path,"-C",LOCAL_DEPEND]
+    cmd = ["tar","-xvf",dest_path,"-C",LOCAL_PARENT]
     subprocess.call(cmd)
