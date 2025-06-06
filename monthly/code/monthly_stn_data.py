@@ -97,7 +97,7 @@ def update_monthly_file(date_id,varname):
 if __name__=="__main__":
     if len(sys.argv) > 1:
         #If manual input of date
-        date_str = sys.argv[2]
+        date_str = sys.argv[1]
         date_time = pd.to_datetime(date_str)
         this_year = date_time.year
         this_mon = date_time.month
