@@ -7,6 +7,7 @@ import numpy as np
 from datetime import datetime,timedelta
 from affine import Affine
 from pyproj import Transformer
+from dateutil import parser
 
 master_dir = os.environ.get("PROJECT_ROOT")
 output_dir = master_dir
