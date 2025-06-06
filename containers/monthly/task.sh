@@ -1,38 +1,66 @@
 #!/bin/bash
-echo "[task.sh] [1/4] Starting Execution."
+
+echo "[task.sh] [1/8] Starting Execution."
 export TZ="HST"
 echo "It is currently $(date)."
 if [ $CUSTOM_DATE ]; then
-    export CUSTOM_DATE=$(date -d "$CUSTOM_DATE" +"%Y-%m-01")
-    export CUSTOM_DATE=$(date -d "$CUSTOM_DATE +1 month -1 day" --iso-8601)
-    echo "An aggregation date was provided by the environment. Setting to last day of provided month."
+    echo "An aggregation date was provided by the environment."
 else
-    export CUSTOM_DATE=$(date -d "-$(date +%d) days" --iso-8601)
-    echo "No aggregation date was provided by the environment. Defaulting to last month."
+    export CUSTOM_DATE=$(date -d "1 day ago" --iso-8601)
+    echo "No aggregation date was provided by the environment. Defaulting to yesterday."
 fi
 echo "Aggregation date is: " $CUSTOM_DATE
+#RENAME .ENV AS NEEDED
+source /workspace/envs/prod.env
 
-echo "[task.sh] [2/4] Mapping Airtemp data on the monthly timeframe."
-cd /home/hawaii_climate_products_container/preliminary/air_temp/daily/
-echo "---monthly_map_wget.py---"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_map_wget.py $CUSTOM_DATE
-echo "---update_monthly_predictor.py---"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/update_monthly_predictor.py $CUSTOM_DATE
-echo "---monthly_map_wrapper.py---"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_map_wrapper.py $CUSTOM_DATE
-echo "---monthly_meta_wrapper.py---"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_meta_wrapper.py $CUSTOM_DATE
-echo "---monthly_state_wrapper.py---"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_state_wrapper.py $CUSTOM_DATE
-echo "---monthly_stn_data.py--- on Tmax"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_stn_data.py Tmax $CUSTOM_DATE
-echo "---monthly_stn_data.py--- on Tmin"
-python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/monthly/code/monthly_stn_data.py Tmin $CUSTOM_DATE
-echo "[task.sh] [3/4] Preparing to upload data."
+echo "[task.sh] [2/8] Fetching dependencies and station data."
+python3 -W ignore /workspace/code/monthly_map_wget.py $CUSTOM_DATE
+
+echo "[task.sh] [3/8] Aggregating daily station to monthly and updating file."
+python3 -W ignore /workspace/code/monthly_stn_data.py $CUSTOM_DATE
+
+echo "[task.sh] [4/8] Running map workflow, all counties, all aggregations"
+python3 -W ignore /workspace/code/monthly_from_daily.py bi max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn max $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa max $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/monthly_from_daily.py bi min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn min $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa min $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/monthly_from_daily.py bi mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py ka mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py mn mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/monthly_from_daily.py oa mean $CUSTOM_DATE
+
+echo "[task.sh] [5/8] Creating county metadata, all aggregations"
+python3 -W ignore /workspace/code/meta_data.py bi max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn max $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa max $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/meta_data.py bi min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn min $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa min $CUSTOM_DATE
+
+python3 -W ignore /workspace/code/meta_data.py bi mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py ka mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py mn mean $CUSTOM_DATE
+python3 -W ignore /workspace/code/meta_data.py oa mean $CUSTOM_DATE
+
+echo "[task.sh] [6/8] Creating statewide mosaic, all aggregations"
+python3 -W ignore /workspace/code/statewide_mosaic.py max $CUSTOM_DATE
+python3 -W ignore /workspace/code/statewide_mosaic.py min $CUSTOM_DATE
+python3 -W ignore /workspace/code/statewide_mosaic.py mean $CUSTOM_DATE
+
+echo "[task.sh] [7/8] Preparing upload config."
 cd /sync
 python3 inject_upload_config.py config.json $CUSTOM_DATE
 
-echo "[task.sh] [4/4] Uploading data."
+echo "[task.sh] [8/8] Uploading data."
 python3 upload.py
 
 echo "[task.sh] All done!"
