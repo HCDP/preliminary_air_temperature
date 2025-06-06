@@ -18,6 +18,8 @@ fill_value = "-9999"
 coord = "Decimal Degrees"
 ref_sys = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
+hst = pytz.timezone('HST')
+
 def get_coordinates(GeoTiff_name):
 
     # Read raster
@@ -79,6 +81,7 @@ def read_county_meta(subproduct):
     return (ndays,missing_days)
 
 def state_metadata(date,subproduct):
+    
     today = datetime.today().astimezone(hst)
     monyear = date.strftime('%b. %Y')
     data_statement = f"This {monyear} monthly temperature {subproduct} mosaic of the State of Hawaii is a high spatial resolution gridded prediction of {subproduct} temperature in degrees Celsius. This was produced using a temporal average of the daily gridded temperature maps produced by the HCDP. This process was done for four individually produced maps of Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties. All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions. Errors in temperature estimates do vary over space meaning any gridded temperature value, even on higher quality maps, could still produce incorrect estimates"
@@ -130,7 +133,6 @@ if __name__=="__main__":
         month_date = parser.parse(input_date)
     else:
         #Ensure runs for only the most recent completed month in near-real-time
-        hst = pytz.timezone('HST')
         today = datetime.today().astimezone(hst)
         #Get start of current month
         month_st = datetime(today.year,today.month,1)
