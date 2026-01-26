@@ -1,4 +1,9 @@
 """
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+
 ____README____
 VERSION 2.0
 BEFORE IMPLEMENT: Please set default system directories/filepaths in CONSTANTS section
@@ -18,6 +23,7 @@ Process output in standard file name format:
 --[source] is 'hads' for HADS processed input stream.
 
 """
+import os
 import sys
 import pytz
 import numpy as np
@@ -34,14 +40,13 @@ SRC_TIME = 'obs_time'
 TMIN_VARNAME = 'Tmin'
 TMAX_VARNAME = 'Tmax'
 MASTER_KEY = 'NESDIS.id'
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-#SOURCE_DIR = MASTER_DIR + r'data_aqs/data_outputs/' + SOURCE_NAME + r'/parse/'
-SOURCE_DIR = MASTER_DIR + r'air_temp/working_data/'
-CODE_MASTER_DIR = MASTER_DIR + r'air_temp/daily/mmcode/'
-WORKING_MASTER_DIR = MASTER_DIR + r'air_temp/working_data/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-PROC_OUTPUT_DIR = WORKING_MASTER_DIR + r'processed_data/' + SOURCE_NAME + r'/'
-TRACK_DIR = RUN_MASTER_DIR + r'tables/air_temp_station_tracking/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+SOURCE_DIR = os.path.join(MASTER_DIR,'working_data/')
+CODE_MASTER_DIR = os.path.join(MASTER_DIR,'daily/code/')
+WORKING_MASTER_DIR = os.path.join(MASTER_DIR,'working_data/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+PROC_OUTPUT_DIR = os.path.join(WORKING_MASTER_DIR,'processed_data/',SOURCE_NAME)
+TRACK_DIR = os.path.join(RUN_MASTER_DIR,'tables/air_temp_station_tracking/')
 MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 INT_EXCEPT = {}
 #END CONSTANTS-----------------------------------------------------------------
@@ -186,8 +191,8 @@ def get_station_sorted_temp(datadir,date_str,output_dir):
     wide_tmin = convert_dataframe(min_max_df,'Tmin')
     wide_tmax = convert_dataframe(min_max_df,'Tmax')
 
-    tmin_process_file = output_dir + '_'.join(('Tmin',SOURCE_NAME,date_year,date_month,'processed.csv'))
-    tmax_process_file = output_dir + '_'.join(('Tmax',SOURCE_NAME,date_year,date_month,'processed.csv'))
+    tmin_process_file = os.path.join(output_dir,'_'.join(('Tmin',SOURCE_NAME,date_year,date_month,'processed.csv')))
+    tmax_process_file = os.path.join(output_dir,'_'.join(('Tmax',SOURCE_NAME,date_year,date_month,'processed.csv')))
 
     tmin_unkn = update_csv(tmin_process_file,wide_tmin)
     tmax_unkn = update_csv(tmax_process_file,wide_tmax)

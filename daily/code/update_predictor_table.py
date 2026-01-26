@@ -1,3 +1,10 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+"""
+import os
 import rasterio
 import pytz
 import pandas as pd
@@ -5,11 +12,11 @@ import numpy as np
 from datetime import datetime, timedelta
 from sys import argv
 
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-PRED_DIR = DEP_MASTER_DIR + r'predictors/'
-DEM_DIR = DEP_MASTER_DIR + r'geoTiffs_250m/dem/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/tables/station_data/daily/raw/statewide/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
+DEM_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/dem/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/tables/station_data/daily/raw/statewide/')
 MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 VAR_LIST = ['Tmax','Tmin']
 ISL_DICT = {'BI':['BI'],'KA':['KA'],'MN':['MA','MO','LA','KO'],'OA':['OA']}

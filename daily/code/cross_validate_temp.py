@@ -1,4 +1,11 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+"""
 #Daily only
+import os
 import sys
 import rasterio
 import numpy as np
@@ -9,14 +16,15 @@ from affine import Affine
 from pyproj import Transformer
 
 #DEFINE CONSTANTS--------------------------------------------------------------
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-PRED_DIR = DEP_MASTER_DIR + r'predictors/'
-MASK_TIFF_DIR = DEP_MASTER_DIR + r'geoTiffs_250m/masks/'
-CV_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/county/'
-META_OUTPUT_DIR = RUN_MASTER_DIR + r'metadata/daily/county/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
+MASK_TIFF_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/masks/')
+CV_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')
+META_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'metadata/daily/county/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
+NO_DATA_VAL = os.environ.get("NO_DATA_VAL")
 #END CONSTANTS-----------------------------------------------------------------
 
 #DEFINE FUNCTIONS--------------------------------------------------------------
@@ -45,8 +53,7 @@ def get_coordinates(GeoTiff_name):
     transformer = Transformer.from_proj(
         'EPSG:4326',
         '+proj=longlat +datum=WGS84 +no_defs +type=crs',
-        always_xy=True,
-        skip_equivalent=True)
+        always_xy=True)
 
     LON, LAT = transformer.transform(eastings, northings)
     return LON, LAT
@@ -268,7 +275,7 @@ def write_meta_text(varname,date_str,meta):
     #Arrange all meta fields and write to file
     field_value_list = {'attribute':'value','dataStatement':dataStatement_val,'keywords':kw_list,
         'county':island.lower(),'dataDate':formatted_date,'dataVersionType':'preliminary','tempStationFile':meta['input_file'],'tempGridFile':meta['temp_file'],
-        'tempSEGridFile':meta['se_file'],'crossValidationFile':cv_file,'fillValue':'-9999','GeoCoordUnits':'Decimal Degrees',
+        'tempSEGridFile':meta['se_file'],'crossValidationFile':cv_file,'fillValue':str(NO_DATA_VAL),'GeoCoordUnits':'Decimal Degrees',
         'GeoCoordRefSystem':'+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0','XResolution':str(meta['XResolution']),
         'YResolution':str(meta['YResolution']),'ExtentXmin':str(meta['Xmin']),
         'ExtentXmax':str(meta['Xmax']),'ExtentYmin':str(meta['Ymin']),

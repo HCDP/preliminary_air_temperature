@@ -333,6 +333,16 @@
             "remote_path": "HCDP/temperature/working_data/processed_data/madis/%y/%m/",
             "rename": "Tmax_madis_%y_%m_processed.csv",
             "system_id": "ikewai-annotated-data"
+        },{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hi_mesonet/Tmin_hi_mesonet_%y_%m_processed.csv",
+            "remote_path": "HCDP/temperature/working_data/processed_data/hi_mesonet/%y/%m/",
+            "rename": "Tmin_hi_mesonet_%y_%m_processed.csv",
+            "system_id": "ikewai-annotated-data"
+        },{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hi_mesonet/Tmax_hi_mesonet_%y_%m_processed.csv",
+            "remote_path": "HCDP/temperature/working_data/processed_data/hi_mesonet/%y/%m/",
+            "rename": "Tmax_hi_mesonet_%y_%m_processed.csv",
+            "system_id": "ikewai-annotated-data"
         }
     ]
 }

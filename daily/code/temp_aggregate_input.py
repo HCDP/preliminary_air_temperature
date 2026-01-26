@@ -1,5 +1,11 @@
 """
 ____README____
+Modified 01.2026
+Patch notes:
+- Edit aggregate_input(...) to not fail on date processing for empty file
+Update 12.2025 
+Patch notes:
+- Updated work path to accept environment variable and removed redundancies.
 Version 1.1
 updated: 5/26/22 (unmerged)
 Description:
@@ -20,11 +26,12 @@ from os.path import exists
 #DEFINE CONSTANTS--------------------------------------------------------------
 #META_COL_N = 12
 IDX_NAME = 'SKN'
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-WORKING_MASTER_DIR = MASTER_DIR + r'air_temp/working_data/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-PROC_DATA_DIR = WORKING_MASTER_DIR + r'processed_data/'
-AGG_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw/statewide/'
+#MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT") 
+WORKING_MASTER_DIR = os.path.join(MASTER_DIR,"working_data/")
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,"data_outputs/")
+PROC_DATA_DIR = os.path.join(WORKING_MASTER_DIR,'processed_data/')
+AGG_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw/statewide/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 #END CONSTANTS-----------------------------------------------------------------
 
@@ -104,24 +111,39 @@ def update_input_file(df,output_file,master_file=META_MASTER_FILE,date_str=None)
 def aggregate_input(varname,filename,datadir,outdir,master_file=META_MASTER_FILE,date_str=None):
     master_df = pd.read_csv(master_file)
     master_df = master_df.set_index(IDX_NAME)
-    full_filename = datadir + filename
-    df = pd.read_csv(full_filename)
-    df = df.set_index(IDX_NAME)
-    meta_cols = list(master_df.columns)
-    temp_cols = [col for col in list(df.columns) if col not in meta_cols]
-    meta_df = df[meta_cols]
-    temp_df = df[temp_cols]
+    full_filename = os.path.join(datadir,filename)
+    #Check source file 1) exists, 2) is not blank, 3) contains data
+    if exists(full_filename):
+        if os.stat(full_filename).st_size != 0:
+            df = pd.read_csv(full_filename)
+            df = df.set_index(IDX_NAME)
+            meta_cols = list(master_df.columns)
+            temp_cols = [col for col in list(df.columns) if col not in meta_cols]
+            meta_df = df[meta_cols]
+            temp_df = df[temp_cols]
+            if (df.shape[0] > 0) | (len(temp_cols) > 0):
+                stn_list = df.index.values
+                date_keys = pd.to_datetime([x.split('X')[1] for x in list(temp_cols)])
+                st_date = date_keys[0]
+                en_date = date_keys[-1]
+                st_date_str = ''.join(str(st_date.date()).split('-'))[:-2]
+                en_date_str = ''.join(str(en_date.date()).split('-'))[:-2]
+                temp_df.columns = date_keys
+            else:
+                print("Source file empty. Skip to next source.")
+                return (None,None)
+        else:
+            print("Source file empty. Skip to next source.")
+            return (None,None)
+    else:
+        print("No source file. Skip to next source.")
+        return (None,None)
     
-    stn_list = df.index.values
     #Adjust this for Tmin/Tmax_QC.csv. After standardized date format from processing,
     #reset conversion to datetime
-    date_keys = pd.to_datetime([x.split('X')[1] for x in list(temp_cols)])
+    
     #date_keys = pd.to_datetime(list(temp_cols))
-    st_date = date_keys[0]
-    en_date = date_keys[-1]
-    st_date_str = ''.join(str(st_date.date()).split('-'))[:-2]
-    en_date_str = ''.join(str(en_date.date()).split('-'))[:-2]
-    temp_df.columns = date_keys
+    
     if st_date_str == en_date_str:
         #same month
         #Check if file exists. If exists, just update

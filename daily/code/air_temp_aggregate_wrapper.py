@@ -1,3 +1,9 @@
+"""
+Update 12.2025 Patch notes
+- Updated to accept environment variable for master work path.
+- Added "himeso" to the source and count lists.
+"""
+import os
 import sys
 import pytz
 import pandas as pd
@@ -7,18 +13,18 @@ from os.path import exists
 from temp_aggregate_input import aggregate_input
 
 #DEFINE CONSTANTS-------------------------------------------------------------
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-WORKING_MASTER_DIR = MASTER_DIR + r'air_temp/working_data/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-PROC_DATA_DIR = WORKING_MASTER_DIR + r'processed_data/'
-AGG_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw/statewide/'
-TRACK_DIR = RUN_MASTER_DIR + r'tables/air_temp_station_tracking/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+WORKING_MASTER_DIR = os.path.join(MASTER_DIR,'working_data/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+PROC_DATA_DIR = os.path.join(WORKING_MASTER_DIR,'processed_data/')
+AGG_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw/statewide/')
+TRACK_DIR = os.path.join(RUN_MASTER_DIR,'tables/air_temp_station_tracking/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 
 TMIN_VARNAME = 'Tmin'
 TMAX_VARNAME = 'Tmax'
-SOURCE_LIST = ['madis','hads']
-COUNT_LIST = ['hads','madis']
+SOURCE_LIST = ['madis','hads','hi_mesonet']
+COUNT_LIST = ['hi_mesonet','hads','madis']
 #END CONSTANTS----------------------------------------------------------------
 
 #DEFINE FUNCTIONS-------------------------------------------------------------
@@ -62,6 +68,7 @@ if __name__=='__main__':
     tmin_stns_by_src = {}
     tmax_stns_by_src = {}
     for src in SOURCE_LIST:
+        print(src)
         year = date_str.split('-')[0]
         mon = date_str.split('-')[1]
         proc_tmin_file_name = '_'.join((TMIN_VARNAME,src,year,mon,'processed')) + '.csv'
@@ -70,8 +77,14 @@ if __name__=='__main__':
         source_processed_dir = PROC_DATA_DIR + src + '/'
         tmin_agg_df,tmin_stns = aggregate_input(TMIN_VARNAME,proc_tmin_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE,date_str=date_str)
         tmax_agg_df,tmax_stns = aggregate_input(TMAX_VARNAME,proc_tmax_file_name,source_processed_dir,AGG_OUTPUT_DIR,META_MASTER_FILE,date_str=date_str)
-        tmin_stns_by_src[src] = tmin_stns
-        tmax_stns_by_src[src] = tmax_stns
+        if tmin_stns is not None:
+            tmin_stns_by_src[src] = tmin_stns
+        else:
+            tmin_stns_by_src[src] = []
+        if tmax_stns is not None:
+            tmax_stns_by_src[src] = tmax_stns
+        else:
+            tmax_stns_by_src[src] = []
 
     tmin_count_file = TRACK_DIR + '_'.join(('count_log_daily_Tmin',year,mon)) + '.csv'
     tmax_count_file = TRACK_DIR + '_'.join(('count_log_daily_Tmax',year,mon)) + '.csv'

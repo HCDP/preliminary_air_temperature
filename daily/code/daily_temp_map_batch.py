@@ -2,6 +2,11 @@
 # coding: utf-8
 
 """
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+
 Version 2.1nrt (NEAR REAL TIME IMPLEMENTATION)
 Updated: 12/02/2021
 
@@ -21,7 +26,7 @@ Pending updates:
 
 
 # In[1]:
-
+import os
 import sys
 import rasterio
 #from rasterio.plot import show
@@ -38,19 +43,18 @@ from pyproj import Transformer
 import Temp_linear as tmpl
 
 #DEFINE CONSTANTS-------------------------------------------------------------
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-CODE_MASTER_DIR = MASTER_DIR + r'air_temp/daily/code/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-PARAM_TIFF_DIR = DEP_MASTER_DIR + r'geoTiffs_250m/' #Fixed dir for location of parameter geotiffs
-CLIM_FILL_DIR = DEP_MASTER_DIR + r'clim/'
-PRED_DIR = DEP_MASTER_DIR + r'predictors/'
-QC_DATA_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw_qc/county/'
-RAW_DATA_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw/statewide/' #Location of station and predictor data for model fit
-MAP_OUTPUT_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/' #Location of geotiff/png output
-SE_OUTPUT_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/'
-PNG_OUTPUT_DIR = RUN_MASTER_DIR + r'plots/county/maps/'
-TRACK_DIR = RUN_MASTER_DIR + r'tables/air_temp_station_tracking/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+CODE_MASTER_DIR = os.path.join(MASTER_DIR,'daily/code/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+PARAM_TIFF_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/') #Fixed dir for location of parameter geotiffs
+CLIM_FILL_DIR = os.path.join(DEP_MASTER_DIR,'clim/')
+PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
+QC_DATA_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw_qc/county/')
+RAW_DATA_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw/statewide/') #Location of station and predictor data for model fit
+MAP_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/') #Location of geotiff/png output
+PNG_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'plots/county/maps/')
+TRACK_DIR = os.path.join(RUN_MASTER_DIR,'tables/air_temp_station_tracking/')
 MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 
 TEMP_TIFF_ON = True #Set True to output temperature gridded geotiff
@@ -58,7 +62,7 @@ SE_TIFF_ON = True   #Set True to output standard error gridded geotiff
 TEMP_PNG_ON = False  #Set True to output png display of temperature geotiff
 SE_PNG_ON = False    #Set True to output png display of standard error geotiff
 
-NO_DATA_VAL = -9999
+NO_DATA_VAL = float(os.environ.get("NO_DATA_VAL"))
 #END CONSTANTS----------------------------------------------------------------
 
 #DEFINE FUNCTIONS-------------------------------------------------------------
@@ -87,8 +91,7 @@ def get_Coordinates(GeoTiff_name):
     transformer = Transformer.from_proj(
         'EPSG:4326',
         '+proj=longlat +datum=WGS84 +no_defs +type=crs',
-        always_xy=True,
-        skip_equivalent=True)
+        always_xy=True)
 
     LON, LAT = transformer.transform(eastings, northings)
     return LON, LAT
@@ -104,22 +107,22 @@ def genParamCode(param):
         return param
 
 
-def genTiffName(param='dem', iCode='bi'):
+def genTiffName(param='dem', icode='bi'):
 
-    iCode = iCode.lower()
+    icode = icode.lower()
     if param == 'dem_250':
         param = 'dem'
 
     pCODE = genParamCode(param)
     TiffName = PARAM_TIFF_DIR + param + \
-        '/' + iCode + '_' + pCODE + '_250m.tif'
+        '/' + icode + '_' + pCODE + '_250m.tif'
 
     return TiffName
 
 
-def getDataArray(param='dem_250', iCode='bi', getMask=False):
+def getDataArray(param='dem_250', icode='bi', getMask=False):
 
-    TiffName = genTiffName(param=param, iCode=iCode)
+    TiffName = genTiffName(param=param, icode=icode)
     raster_img = rasterio.open(TiffName)
 
     myarray = raster_img.read(1)
@@ -135,9 +138,9 @@ def getDataArray(param='dem_250', iCode='bi', getMask=False):
 
     return dataArray
 
-def get_island_grid(iCode, params):
+def get_island_grid(icode, params):
 
-    TiffName = genTiffName(iCode=iCode)
+    TiffName = genTiffName(icode=icode)
     LON, LAT = get_Coordinates(TiffName)
     LON = LON.reshape(-1)
     LAT = LAT.reshape(-1)
@@ -146,36 +149,36 @@ def get_island_grid(iCode, params):
 
     for param in params:
 
-        myDict[param] = getDataArray(iCode=iCode, param=param).reshape(-1)
+        myDict[param] = getDataArray(icode=icode, param=param).reshape(-1)
 
     island_df = pd.DataFrame.from_dict(myDict)
 
-    mask, shape = getDataArray(iCode=iCode, getMask=True)
+    mask, shape = getDataArray(icode=icode, getMask=True)
 
     return island_df, mask.reshape(-1), shape
 
-def G_islandName(iCode):
+def G_islandName(icode):
 
-    if iCode == 'bi':
+    if icode == 'bi':
         return "Big Island"
-    elif iCode == 'oa':
+    elif icode == 'oa':
         return "Oahu"
-    elif iCode == 'mn':
+    elif icode == 'mn':
         return "Maui nui"
-    elif iCode == 'ka':
+    elif icode == 'ka':
         return "Kauai"
     else:
-        return iCode
+        return icode
 
-def output_tiff(df_data,tiff_filename,iCode,shape):
+def output_tiff(df_data,tiff_filename,icode,shape):
     cols, rows = shape
-    fp = genTiffName(param='dem', iCode=iCode)
+    fp = genTiffName(param='dem', icode=icode)
     
     ds = gdal.Open(fp)
 
     # arr_out = np.where((arr < arr_mean), -100000, arr)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(tiff_filename, rows, cols, 1, gdal.GDT_Float32, options = ["COMPRESS=LZW"])
+    outdata = driver.Create(tiff_filename, rows, cols, 1, gdal.GDT_Float32)
     # sets same geotransform as input
     outdata.SetGeoTransform(ds.GetGeoTransform())
     outdata.SetProjection(ds.GetProjection())  # sets same projection as input
@@ -186,7 +189,7 @@ def output_tiff(df_data,tiff_filename,iCode,shape):
     outdata = None
     ds = None
 
-def output_png(tiff_file,png_file,iCode,date_str):
+def output_png(tiff_file,png_file,icode,date_str):
     fig = plt.figure(figsize=(9, 9), dpi=80)
     ax = fig.add_subplot(1, 1, 1)
 
@@ -224,7 +227,7 @@ def output_png(tiff_file,png_file,iCode,date_str):
     for tick in ax.yaxis.get_major_ticks():
         tick.label.set_fontsize(fontsize)
 
-    ax.set_title(G_islandName(iCode) + " (" + date_str + ")", fontsize=14)
+    ax.set_title(G_islandName(icode) + " (" + date_str + ")", fontsize=14)
 
     fig.savefig(png_file, dpi=200)
     plt.close("all")    
@@ -261,13 +264,13 @@ def sort_dates(df,meta_cols):
     sorted_df = df[sorted_cols]
     return sorted_df
 
-def generate_county_map(iCode, varname, params, date_str, output_dir=None):
+def generate_county_map(icode, varname, params, date_str, output_dir=None):
     master_df = pd.read_csv(MASTER_LINK)
     master_df = master_df.set_index('SKN')
     if output_dir == None:
-        map_dir = MAP_OUTPUT_DIR + varname + '/' + iCode.upper() + '/'
-        se_dir = SE_OUTPUT_DIR + varname + '_se/' + iCode.upper() + '/'
-        png_dir = PNG_OUTPUT_DIR + iCode.upper() + '/'
+        map_dir = os.path.join(MAP_OUTPUT_DIR,varname,icode.upper())
+        se_dir = os.path.join(MAP_OUTPUT_DIR,f"{varname}_se/",icode.upper())
+        png_dir = PNG_OUTPUT_DIR + icode.upper() + '/'
     else:
         map_dir = output_dir[0]
         se_dir = output_dir[1]
@@ -277,10 +280,10 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
     dateTail = dateSpl[0] + dateSpl[1] + dateSpl[2]
 
     #Specify input values
-    if iCode == 'MN':
+    if icode == 'MN':
         isl_list = ['MA','KO','MO','LA']
     else:
-        isl_list = [iCode]
+        isl_list = [icode]
 
     predname = varname.lower()
     threshold = 2.5     # threshold of sigma clipping when removing outliers
@@ -289,15 +292,15 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
 
     #Edit according to master directory standard
     climname = CLIM_FILL_DIR + varname + '_stn_clim.csv'
-    qc_temp_file = QC_DATA_DIR + '_'.join(('daily',varname,iCode,dateSpl[0],dateSpl[1],'qc')) + '.csv'
+    qc_temp_file = QC_DATA_DIR + '_'.join(('daily',varname,icode,dateSpl[0],dateSpl[1],'qc')) + '.csv'
     qc_fail_name = TRACK_DIR + '_'.join(('qaqc_fail_stations',dateSpl[0],dateSpl[1])) + '.csv'
-    Tmap_tiff = varname + '_map_' + iCode + '_' + dateTail + '.tif'
-    Tmap_tiff_path = map_dir + Tmap_tiff
-    se_tiff = varname + '_map_' + iCode + '_' + dateTail + '_se.tif'
-    se_tiff_path = se_dir + se_tiff
-    Tmap_png = varname + '_map_' + iCode + '_' + dateTail + '.png'
+    Tmap_tiff = varname + '_map_' + icode + '_' + dateTail + '.tif'
+    Tmap_tiff_path = os.path.join(map_dir,Tmap_tiff)
+    se_tiff = varname + '_map_' + icode + '_' + dateTail + '_se.tif'
+    se_tiff_path = os.path.join(se_dir,se_tiff)
+    Tmap_png = varname + '_map_' + icode + '_' + dateTail + '.png'
     Tmap_png_path = png_dir + Tmap_png
-    se_png = varname + '_map_' + iCode + '_' + dateTail + '_se.png'
+    se_png = varname + '_map_' + icode + '_' + dateTail + '_se.png'
     se_png_path = png_dir + se_png
 
     #Extract and process data for model fitting
@@ -308,7 +311,7 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
     pred_filename = PRED_DIR + predname + '_predictors.csv'
     temp_df,temp_meta,temp_data = tmpl.extract_temp_input(temp_filename)
     pred_df,pr_series = tmpl.extract_predictors(pred_filename,params)
-    temp_date = tmpl.get_temperature_date(temp_data,temp_meta,iCode,date_str,varname=varname,climloc=climname)
+    temp_date = tmpl.get_temperature_date(temp_data,temp_meta,icode,date_str,varname=varname,climloc=climname)
     valid_skns = np.intersect1d(temp_date.index.values,pr_series.index.values)
     df_date = pd.concat([temp_date.loc[valid_skns,[varname,'Island','LON','LAT']],pr_series.loc[valid_skns]],axis=1)
     meta_cols = list(temp_meta.columns)
@@ -317,7 +320,7 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
     pr_series = df_date[params]
     MODEL = tmpl.myModel(inversion=inversion)
     theta, pcov, X, y = tmpl.makeModel(temp_series,pr_series,MODEL,threshold=threshold)
-    island_df, mask, shape = get_island_grid(iCode, params)
+    island_df, mask, shape = get_island_grid(icode, params)
     se_model = tmpl.get_std_error(pr_series,temp_series,pcov,island_df[params],inversion)
 
     #QC output
@@ -409,17 +412,17 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
 
     #Generate geotiffs for temperature map and standard error
     if TEMP_TIFF_ON:
-        output_tiff(T_model,Tmap_tiff_path,iCode,shape)
+        output_tiff(T_model,Tmap_tiff_path,icode,shape)
 
     #--Gridded standard error
     if SE_TIFF_ON:
-        output_tiff(se_model,se_tiff_path,iCode,shape)
+        output_tiff(se_model,se_tiff_path,icode,shape)
 
     if TEMP_PNG_ON:
-        output_png(Tmap_tiff_path,Tmap_png_path,iCode)
+        output_png(Tmap_tiff_path,Tmap_png_path,icode)
 
     if SE_PNG_ON:
-        output_png(se_tiff_path,se_png_path,iCode)
+        output_png(se_tiff_path,se_png_path,icode)
     
     return (temp_date,pr_series,theta,isl_dims)
 
@@ -428,7 +431,7 @@ def generate_county_map(iCode, varname, params, date_str, output_dir=None):
 # $ autopep8 --in-place --aggressive  <filename>.py
 if __name__ == '__main__':
 
-    iCode = str(sys.argv[1])  # 'bi'
+    icode = str(sys.argv[1])  # 'bi'
     varname = str(sys.argv[2]) #variable name
     date_range = str(sys.argv[3]) #YYYYMMDD_start-YYYYMMDD_end
     date_range = date_range.split('-')
@@ -441,21 +444,21 @@ if __name__ == '__main__':
 
     #All directories set from CONSTANTS
     outputs = None
-    iCode = iCode.upper()
+    icode = icode.upper()
 
     error_on = True
     #Error checking (for testing purposes only)
     if error_on:
         date_str = str(date_list[0].date())
-        print(iCode, varname, date_str)
-        generate_county_map(iCode, varname, params, date_str, outputs)
+        print(icode, varname, date_str)
+        generate_county_map(icode, varname, params, date_str, outputs)
     else:
     
         for dt in date_list:
             try:
                 date_str = str(dt.date())
-                print(iCode, varname, date_str)
-                generate_county_map(iCode, varname, params, date_str, outputs)
+                print(icode, varname, date_str)
+                generate_county_map(icode, varname, params, date_str, outputs)
                 print('Done -------------^ ')
             except BaseException:
                 print('Error -------------^ ')

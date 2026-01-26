@@ -1,4 +1,10 @@
 """
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+
+____README____
 This builds a script to convert raw madis sourced csv into min and max temperature.
 
 Version 1.0.1
@@ -6,6 +12,7 @@ Version 1.0.1
 NWS.ids being updated and master meta df being updated to match.
 """
 
+import os
 import sys
 import pytz
 import numpy as np
@@ -22,12 +29,11 @@ SRC_VARKEY = 'varname'
 MASTER_KEY = 'NWS.id'
 INT_EXCEPT = {'E3941':144.,'F4600':96.}
 MASTER_LINK = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-#SOURCE_DIR = MASTER_DIR + r'data_aqs/data_outputs/madis/parse/'
-SOURCE_DIR = MASTER_DIR + r'air_temp/working_data/'
-PROC_OUTPUT_DIR = MASTER_DIR + r'air_temp/working_data/processed_data/' + SOURCE + r'/'
-TRACK_DIR = MASTER_DIR + r'air_temp/data_outputs/tables/air_temp_station_tracking/'
-MESO_REF = MASTER_DIR + r'air_temp/daily/dependencies/HIMesonetIDTable.csv'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+SOURCE_DIR = os.path.join(MASTER_DIR,'working_data/')
+PROC_OUTPUT_DIR = os.path.join(MASTER_DIR,'working_data/processed_data/',f"{SOURCE}/")
+TRACK_DIR = os.path.join(MASTER_DIR,'data_outputs/tables/air_temp_station_tracking/')
+MESO_REF = os.path.join(MASTER_DIR,'daily/dependencies/HIMesonetIDTable.csv')
 MESO_KEY = 'NWS ID'
 CONVERT_KEY = 'HI Meso ID'
 #END CONSTANTS-----------------------------------------------------------------

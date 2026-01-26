@@ -1,6 +1,12 @@
 """
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+--deleted redundancy with temp_agg_wget so that raw station data files are not pulled twice for no reason. Download and unpack dependency folder only.
 Runs prior to mapping workflow
 """
+import os
 import sys
 import subprocess
 import pytz
@@ -9,9 +15,8 @@ from pandas import to_datetime
 
 REMOTE_BASEURL =r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/temperature/'
 DEPEND_DIR = r'https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/temperature/'
-LOCAL_PARENT = r'/home/hawaii_climate_products_container/preliminary/'
-LOCAL_DEPEND = LOCAL_PARENT + r'air_temp/daily/'
-LOCAL_TEMP = LOCAL_PARENT + r'air_temp/data_outputs/tables/station_data/daily/raw/statewide/'
+LOCAL_PARENT = os.environ.get("PROJECT_ROOT")
+LOCAL_DEPEND = os.path.join(LOCAL_PARENT,'daily/')
 
 if __name__=="__main__":
     if len(sys.argv) > 1:
@@ -29,20 +34,6 @@ if __name__=="__main__":
         prev_day_mon = prev_day.strftime('%Y_%m')
         year_str = prev_day.strftime('%Y')
         mon_str = prev_day.strftime('%m')
-
-    #Tmin daily stations pull
-    src_url = REMOTE_BASEURL + r'min/day/statewide/raw/station_data/'+year_str+r'/'+mon_str+r'/'
-    filename = src_url + r'_'.join(('temperature','min','day_statewide_raw_station_data',prev_day_mon)) + r'.csv'
-    local_name = LOCAL_TEMP + r'_'.join(('daily','Tmin',prev_day_mon)) + r'.csv'
-    cmd = ["wget",filename,"-O",local_name]
-    #subprocess.call(cmd)
-
-    #Tmax daily stations pull
-    src_url = REMOTE_BASEURL + r'max/day/statewide/raw/station_data/'+year_str+r'/'+mon_str+r'/'
-    filename = src_url + r'_'.join(('temperature','max','day_statewide_raw_station_data',prev_day_mon)) + r'.csv'
-    local_name = LOCAL_TEMP + r'_'.join(('daily','Tmax',prev_day_mon)) + r'.csv'
-    cmd = ["wget",filename,"-O",local_name]
-    #subprocess.call(cmd)
 
     #Air temp daily dependencies
     src_url = DEPEND_DIR + "dependencies.tar.gz"
