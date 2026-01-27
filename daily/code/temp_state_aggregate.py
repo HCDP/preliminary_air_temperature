@@ -1,3 +1,11 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+--updated gdal_merge setting from -n to -init because that works for some reason
+"""
+import os
 import sys
 import subprocess
 import rasterio
@@ -10,27 +18,27 @@ from datetime import date
 from Temp_linear import sigma_Clip, metrics
 
 #SET CONSTANTS AND SETTINGS-----------------------------------------#
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-COUNTY_MAP_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/'
-STATE_MAP_DIR = RUN_MASTER_DIR + r'tiffs/daily/statewide/'
-COUNTY_CV_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/county/'
-STATE_CV_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/statewide/'
-STATE_META_DIR = RUN_MASTER_DIR + r'metadata/daily/statewide/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+COUNTY_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/')
+STATE_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/statewide/')
+COUNTY_CV_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')
+STATE_CV_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/statewide/')
+STATE_META_DIR = os.path.join(RUN_MASTER_DIR,'metadata/daily/statewide/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
-QC_DATA_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw_qc/county/'
-QC_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw_qc/statewide/'
+QC_DATA_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw_qc/county/')
+QC_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw_qc/statewide/')
 TEMP_SUFF = '.tif'
 SE_SUFF = '_se.tif'
 ICODE_LIST = ['BI','KA','MN','OA']
-NO_DATA_VAL = -9999
+NO_DATA_VAL = os.environ.get("NO_DATA_VAL")
 #END SETTINGS-------------------------------------------------------#
 
 #DEFINE FUNCTIONS---------------------------------------------------#
 def get_grid_pix(varname,date_str,icode_list,county_tiff_dir=COUNTY_MAP_DIR):
     #[SET_DIR]
-    file_names = [county_tiff_dir+varname+'/'+icode.upper()+'/'+'_'.join((varname,'map',icode.upper(),''.join(date_str.split('-')))) + '.tif' for icode in icode_list]
+    file_names = [f"{county_tiff_dir}{varname}/{icode.upper()}/{varname}_map_{icode.upper()}_{''.join(date_str.split('-'))}.tif" for icode in icode_list]
 
     grid_pix = []
     for f in file_names:
@@ -71,8 +79,7 @@ def get_Coordinates(GeoTiff_name):
     transformer = Transformer.from_proj(
         'EPSG:4326',
         '+proj=longlat +datum=WGS84 +no_defs +type=crs',
-        always_xy=True,
-        skip_equivalent=True)
+        always_xy=True)
 
     LON, LAT = transformer.transform(eastings, northings)
     return LON, LAT
@@ -81,7 +88,7 @@ def output_tiff(data,base_tiff_name,out_tiff_name,tiff_shape):
     cols,rows = tiff_shape
     ds = gdal.Open(base_tiff_name)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32, options = ["COMPRESS=LZW"])
+    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32)
     # sets same geotransform as input
     outdata.SetGeoTransform(ds.GetGeoTransform())
     outdata.SetProjection(ds.GetProjection())  # sets same projection as input
@@ -135,7 +142,7 @@ def statewide_mosaic(varname,date_str,input_dir,temp_suffix,output_dir):
     date_tail = ''.join(date_str.split('-'))
     file_names = [input_dir+varname+temp_suffix+'/'+icode.upper()+'/'+'_'.join((varname,'map',icode.upper(),date_tail)) + temp_suffix + '.tif' for icode in icode_list]
     output_name = output_dir + varname+temp_suffix + '/' + '_'.join((varname,'map','state',date_tail)) + temp_suffix + '.tif'
-    cmd = "gdal_merge.py -o "+output_name+" -of gtiff -co COMPRESS=LZW -n -9999 -a_nodata -9999"
+    cmd = "gdal_merge.py -o "+output_name+" -of gtiff -co COMPRESS=LZW -init -9999 -a_nodata -9999"
     subprocess.call(cmd.split()+file_names)
     #reformat_tiff(output_name) #handled by gdal_merge in the live mode
 

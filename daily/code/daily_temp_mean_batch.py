@@ -1,4 +1,11 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+"""
 #Creates temperature mean from Tmin and Tmax average
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -9,16 +16,15 @@ from pyproj import Transformer
 
 
 #NAMING SETTINGS & OUTPUT FLAGS----------------------------------------------#
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-CODE_MASTER_DIR = MASTER_DIR + r'air_temp/daily/code/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-MAP_OUTPUT_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/' #Set subdirectories based on varname and iCode
-SE_OUTPUT_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/'
-CV_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/county/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+CODE_MASTER_DIR = os.path.join(MASTER_DIR,'daily/code/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+MAP_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/') #Set subdirectories based on varname and icode
+CV_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')
 TIFF_SUFFIX = '.tif'
 SE_SUFFIX = '_se.tif'
 CV_SUFFIX = '_loocv.csv'
-NO_DATA_VAL = -9999
+NO_DATA_VAL = float(os.environ.get("NO_DATA_VAL"))
 #END SETTINGS----------------------------------------------------------------#
 
 #FUNCTION DEFINITION---------------------------------------------------------#
@@ -47,8 +53,7 @@ def get_Coordinates(GeoTiff_name):
     transformer = Transformer.from_proj(
         'EPSG:4326',
         '+proj=longlat +datum=WGS84 +no_defs +type=crs',
-        always_xy=True,
-        skip_equivalent=True)
+        always_xy=True)
 
     LON, LAT = transformer.transform(eastings, northings)
     return LON, LAT
@@ -81,7 +86,7 @@ def output_tiff(data,base_tiff_name,out_tiff_name,tiff_shape):
     cols,rows = tiff_shape
     ds = gdal.Open(base_tiff_name)
     driver = gdal.GetDriverByName("GTiff")
-    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32, options = ["COMPRESS=LZW"])
+    outdata = driver.Create(out_tiff_name, rows, cols, 1, gdal.GDT_Float32)
     # sets same geotransform as input
     outdata.SetGeoTransform(ds.GetGeoTransform())
     outdata.SetProjection(ds.GetProjection())  # sets same projection as input
@@ -98,26 +103,25 @@ def output_tiff(data,base_tiff_name,out_tiff_name,tiff_shape):
 #Merge standard error as well
 
 #"Main functions"
-def generate_county_mean(iCode,date_str,datadir=None):
+def generate_county_mean(icode,date_str,datadir=None):
     date_tail = ''.join(date_str.split('-'))
-    iCode = iCode.upper()
+    icode = icode.upper()
     min_varname = 'Tmin'
     max_varname = 'Tmax'
     mean_varname = 'Tmean'
     #[SET_DIR]
     if datadir == None:
-        TMIN_TIFF_DIR = MAP_OUTPUT_DIR + min_varname + '/' + iCode + '/'
-        TMAX_TIFF_DIR = MAP_OUTPUT_DIR + max_varname + '/' + iCode + '/'
-        TMEAN_TIFF_DIR = MAP_OUTPUT_DIR + mean_varname + '/' + iCode + '/'
+        TMIN_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,min_varname,icode)
+        TMAX_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,max_varname,icode)
+        TMEAN_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,mean_varname,icode)
     else:
         TMIN_TIFF_DIR = datadir[0]
         TMAX_TIFF_DIR = datadir[1]
         TMEAN_TIFF_DIR = datadir[2]
     #Set tiff filename
-    tmin_tiff_name = TMIN_TIFF_DIR + '_'.join((min_varname,'map',iCode,date_tail)) + TIFF_SUFFIX
-    tmax_tiff_name = TMAX_TIFF_DIR + '_'.join((max_varname,'map',iCode,date_tail)) + TIFF_SUFFIX
-
-    tmean_tiff_name = TMEAN_TIFF_DIR + '_'.join((mean_varname,'map',iCode,date_tail)) + TIFF_SUFFIX
+    tmin_tiff_name = os.path.join(TMIN_TIFF_DIR,'_'.join((min_varname,'map',icode,date_tail)) + TIFF_SUFFIX)
+    tmax_tiff_name = os.path.join(TMAX_TIFF_DIR,'_'.join((max_varname,'map',icode,date_tail)) + TIFF_SUFFIX)
+    tmean_tiff_name = os.path.join(TMEAN_TIFF_DIR,'_'.join((mean_varname,'map',icode,date_tail)) + TIFF_SUFFIX)
 
     #Open raster files and convert to dataframes
 
@@ -136,27 +140,27 @@ def generate_county_mean(iCode,date_str,datadir=None):
     #Output to new tiff
     output_tiff(tmean,tmin_tiff_name,tmean_tiff_name,shape)
     
-def generate_se_mean(iCode,date_str,datadir=None):
+def generate_se_mean(icode,date_str,datadir=None):
 
     #Setting file names
     date_tail = ''.join(date_str.split('-'))
-    iCode = iCode.upper()
+    icode = icode.upper()
     min_varname = 'Tmin'
     max_varname = 'Tmax'
     mean_varname = 'Tmean'
     #[SET_DIR]
     if datadir == None:
-        TMIN_TIFF_DIR = MAP_OUTPUT_DIR + min_varname + '_se/' + iCode + '/'
-        TMAX_TIFF_DIR = MAP_OUTPUT_DIR + max_varname + '_se/' + iCode + '/'
-        TMEAN_TIFF_DIR = MAP_OUTPUT_DIR + mean_varname + '_se/' + iCode + '/'
+        TMIN_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,f"{min_varname}_se",icode)
+        TMAX_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,f"{max_varname}_se",icode)
+        TMEAN_TIFF_DIR = os.path.join(MAP_OUTPUT_DIR,f"{mean_varname}_se",icode)
     else:
         TMIN_TIFF_DIR = datadir[0]
         TMAX_TIFF_DIR = datadir[1]
         TMEAN_TIFF_DIR = datadir[2]
-    se_min_tiff_name = TMIN_TIFF_DIR + '_'.join((min_varname,'map',iCode,date_tail)) + SE_SUFFIX
-    se_max_tiff_name = TMAX_TIFF_DIR + '_'.join((max_varname,'map',iCode,date_tail)) + SE_SUFFIX
-    
-    se_mean_tiff_name = TMEAN_TIFF_DIR + '_'.join((mean_varname,'map',iCode,date_tail)) + SE_SUFFIX
+    se_min_tiff_name = os.path.join(TMIN_TIFF_DIR,'_'.join((min_varname,'map',icode,date_tail)) + SE_SUFFIX)
+    se_max_tiff_name = os.path.join(TMAX_TIFF_DIR,'_'.join((max_varname,'map',icode,date_tail)) + SE_SUFFIX)
+    se_mean_tiff_name = os.path.join(TMEAN_TIFF_DIR,'_'.join((mean_varname,'map',icode,date_tail)) + SE_SUFFIX)
+
     #Reading tiff data and getting statistic values
     se_min_df, tiff_shape = get_island_df(se_min_tiff_name,min_varname)
     se_max_df, tiff_shape = get_island_df(se_max_tiff_name,max_varname)
@@ -178,7 +182,7 @@ def generate_se_mean(iCode,date_str,datadir=None):
 # $ autopep8 --in-place --aggressive  <filename>.py
 if __name__ == '__main__':
 
-    iCode = str(sys.argv[1])  # 'bi'
+    icode = str(sys.argv[1])  # 'bi'
     #main_dir = sys.argv[2] #Parent dir, assuming standard temp file tree
     date_range = str(sys.argv[2]) #YYYYMMDD_start-YYYYMMDD_end
 
@@ -187,17 +191,14 @@ if __name__ == '__main__':
     en_date = pd.to_datetime(date_range[1],format='%Y%m%d')
 
     date_list = pd.date_range(st_date,en_date)
-
-    temp_dir = MAP_OUTPUT_DIR
-    se_dir = SE_OUTPUT_DIR
     
-    iCode = iCode.upper()
+    icode = icode.upper()
     for dt in date_list:
         date_str = str(dt.date())
-        print(iCode,'Tmean',date_str)
+        print(icode,'Tmean',date_str)
         try:
-            generate_county_mean(iCode,date_str,temp_dir)
-            generate_se_mean(iCode,date_str,se_dir)
+            generate_county_mean(icode,date_str)
+            generate_se_mean(icode,date_str)
             print('Success------------^')
         except:
             print('Error -------------^ ')

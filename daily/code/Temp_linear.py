@@ -1,3 +1,8 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
 #Version 2.1
 #2023-04-07
 #--Major patch: incorporated naive range-based quality control for input
@@ -27,9 +32,12 @@
 #2021-08-11
 #--Minor patch: Corrected divide by zero case in cross-validation function. metrics(...) cannot run when validation station too low with respect to n_params
 #--Tmax gapfill stations added
+"""
+
 
 #from attr import field
 #import pylab as py
+import os
 import pickle
 import pandas as pd
 import numpy as np
@@ -43,10 +51,10 @@ from sklearn.metrics import r2_score
 #Consolidate file names, index names, and directory names here to avoid hardcoding
 STN_IDX_NAME = 'SKN'
 ELEV_IDX_NAME = 'ELEV.m.'
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-GP_DATA_DIR = DEP_MASTER_DIR + r'gapfill_models/'
-CLIM_DATA_DIR = DEP_MASTER_DIR + r'clim/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+GP_DATA_DIR = os.path.join(DEP_MASTER_DIR,'gapfill_models/')
+CLIM_DATA_DIR = os.path.join(DEP_MASTER_DIR,'clim/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'
 TARG_STN_LIST = ['39.0','339.6','885.7','1075.0']
 #GAPFILL_PREF = ''
@@ -70,7 +78,7 @@ STD_FACTOR = 5
 
 def get_clim_file(varname):
     #Change according to file naming convention needs
-    clim_name = CLIM_DATA_DIR + varname + CLIM_SUF
+    clim_name = os.path.join(CLIM_DATA_DIR,varname + CLIM_SUF)
     return clim_name
 
 def linear(x, a, b):
@@ -145,7 +153,7 @@ def lr_temp_gapfill(isl_df,varname,stn_date):
     for target in TARG_STN_LIST:
         if np.isnan(new_isl_df.at[float(target),varname]):
             #iteratively check the regression parameters
-            fill_file = GP_DATA_DIR + varname + '_target' + STN_IDX_NAME + target + GAPFILL_SUF
+            fill_file = os.path.join(GP_DATA_DIR,f"{varname}_target{STN_IDX_NAME}{target}{GAPFILL_SUF}")
             fill_model_df = pd.read_csv(fill_file, skiprows=3)
             fill_model_df = fill_model_df.set_index(STN_IDX_NAME)
             pred_stn_list = predictor_stations[target]

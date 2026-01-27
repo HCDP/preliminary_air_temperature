@@ -1,3 +1,10 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+"""
+import os
 import sys
 import numpy as np
 from pandas import to_datetime
@@ -5,14 +12,13 @@ from datetime import date, timedelta
 from temp_state_aggregate import statewide_mosaic, create_tables, qc_state_aggregate
 
 #DEFINE CONSTANTS-------------------------------------------------------------
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-CODE_MASTER_DIR = MASTER_DIR + r'air_temp/daily/code/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-COUNTY_MAP_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/' #Set subdirectories based on varname and iCode
-STATE_MAP_DIR = RUN_MASTER_DIR + r'tiffs/daily/statewide/'
-SE_OUTPUT_DIR = RUN_MASTER_DIR + r'tiffs/daily/county/'
-CV_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/county/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+COUNTY_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/') #Set subdirectories based on varname and iCode
+STATE_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/statewide/')
+SE_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/')
+CV_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')
 ICODE_LIST = ['BI','KA','MN','OA']
 TEMP_SUFF = ''
 SE_SUFF = '_se'

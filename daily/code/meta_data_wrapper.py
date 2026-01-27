@@ -1,3 +1,10 @@
+"""
+Modified 01.2026
+Patch notes:
+--updated MASTER_DIR to accept environment variable for seamless transition from testing to production env
+--updated major directory concats to use os.path.join to prevent '/' errors
+"""
+import os
 import sys
 import numpy as np
 from datetime import date, timedelta
@@ -6,13 +13,13 @@ import Temp_linear as tmpl
 import cross_validate_temp as cv
 
 #DEFINE CONSTANTS-------------------------------------------------------------
-MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-WORKING_MASTER_DIR = MASTER_DIR + r'air_temp/working_data/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
-RUN_MASTER_DIR = MASTER_DIR + r'air_temp/data_outputs/'
-PRED_DIR = DEP_MASTER_DIR + r'predictors/'
-RAW_DATA_DIR = RUN_MASTER_DIR + r'tables/station_data/daily/raw/statewide/' #Location of station and predictor data for model fit
-CV_OUTPUT_DIR = RUN_MASTER_DIR + r'tables/loocv/daily/county/'
+MASTER_DIR = os.environ.get("PROJECT_ROOT")
+WORKING_MASTER_DIR = os.path.join(MASTER_DIR,'working_data/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
+PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
+RAW_DATA_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw/statewide/') #Location of station and predictor data for model fit
+CV_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')
 ICODE_LIST = ['BI','KA','MN','OA']
 PARAM_LIST = ['dem_250']
 #END CONSTANTS----------------------------------------------------------------
