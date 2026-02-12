@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from sys import argv
 
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
 DEM_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/dem/')
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/tables/station_data/daily/raw/statewide/')

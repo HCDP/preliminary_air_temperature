@@ -70,11 +70,3 @@ if __name__=="__main__":
     local_name = LOCAL_PARENT + r'_'.join(('monthly','Tmax',year_str,'qc'))+r'.csv'
     cmd = ["wget",filename,"-O",local_name]
     subprocess.call(cmd)
-
-    #Air temp daily dependencies
-    src_url = DEPEND_DIR + "dependencies.tar.gz"
-    dest_path = LOCAL_PARENT + "dependencies.tar.gz"
-    cmd = ["wget",src_url,"-O",dest_path]
-    subprocess.call(cmd)
-    cmd = ["tar","-xvf",dest_path,"-C",LOCAL_PARENT]
-    subprocess.call(cmd)

@@ -41,7 +41,7 @@ from sklearn.metrics import r2_score
 STN_IDX_NAME = 'SKN'
 ELEV_IDX_NAME = 'ELEV.m.'
 MASTER_DIR = r'/home/hawaii_climate_products_container/preliminary/'
-DEP_MASTER_DIR = MASTER_DIR + r'air_temp/daily/dependencies/'
+DEP_MASTER_DIR = MASTER_DIR + r'air_temp/dependencies/'
 GP_DATA_DIR = DEP_MASTER_DIR + r'gapfill_models/'
 CLIM_DATA_DIR = DEP_MASTER_DIR + r'clim/'
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'

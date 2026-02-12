@@ -3,7 +3,6 @@ FROM ghcr.io/hcdp/task-preliminary-air-temperature-base:latest
 LABEL org.opencontainers.image.source="https://github.com/hcdp/task-preliminary-air-temperature-daily"
 LABEL org.opencontainers.image.description="Daily Air Temperature Aggregation and Mapping."
 
-RUN mkdir -p /workspace
 ADD /daily /workspace
 
 RUN mkdir -p /workspace/envs

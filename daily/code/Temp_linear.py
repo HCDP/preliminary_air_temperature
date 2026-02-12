@@ -52,7 +52,7 @@ from sklearn.metrics import r2_score
 STN_IDX_NAME = 'SKN'
 ELEV_IDX_NAME = 'ELEV.m.'
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 GP_DATA_DIR = os.path.join(DEP_MASTER_DIR,'gapfill_models/')
 CLIM_DATA_DIR = os.path.join(DEP_MASTER_DIR,'clim/')
 META_MASTER_FILE = r'https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv'

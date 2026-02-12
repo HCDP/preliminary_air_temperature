@@ -36,6 +36,12 @@ RUN python3 -m pip install pathlib
 RUN python3 -m pip install xarray
 RUN python3 -m pip install requests
 
+RUN mkdir -p /workspace/dependencies
+WORKDIR /workspace/dependencies
+RUN wget -nv https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/temperature/dependencies.tar.gz
+RUN tar -xf dependencies.tar.gz
+RUN rm dependencies.tar.gz
+
 RUN mkdir -p /sync
 RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py
 

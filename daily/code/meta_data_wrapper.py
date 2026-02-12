@@ -15,7 +15,7 @@ import cross_validate_temp as cv
 #DEFINE CONSTANTS-------------------------------------------------------------
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
 WORKING_MASTER_DIR = os.path.join(MASTER_DIR,'working_data/')
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
 PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
 RAW_DATA_DIR = os.path.join(RUN_MASTER_DIR,'tables/station_data/daily/raw/statewide/') #Location of station and predictor data for model fit

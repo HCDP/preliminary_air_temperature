@@ -33,7 +33,7 @@ MASTER_DIR = os.environ.get("PROJECT_ROOT")
 SOURCE_DIR = os.path.join(MASTER_DIR,'working_data/')
 PROC_OUTPUT_DIR = os.path.join(MASTER_DIR,'working_data/processed_data/',f"{SOURCE}/")
 TRACK_DIR = os.path.join(MASTER_DIR,'data_outputs/tables/air_temp_station_tracking/')
-MESO_REF = os.path.join(MASTER_DIR,'daily/dependencies/HIMesonetIDTable.csv')
+MESO_REF = os.path.join(MASTER_DIR,'dependencies/HIMesonetIDTable.csv')
 MESO_KEY = 'NWS ID'
 CONVERT_KEY = 'HI Meso ID'
 #END CONSTANTS-----------------------------------------------------------------

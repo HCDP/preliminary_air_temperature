@@ -13,7 +13,7 @@ from temp_state_aggregate import statewide_mosaic, create_tables, qc_state_aggre
 
 #DEFINE CONSTANTS-------------------------------------------------------------
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
 COUNTY_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/') #Set subdirectories based on varname and iCode
 STATE_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/statewide/')

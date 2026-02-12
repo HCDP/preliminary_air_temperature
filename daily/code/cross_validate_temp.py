@@ -18,7 +18,7 @@ from pyproj import Transformer
 #DEFINE CONSTANTS--------------------------------------------------------------
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 PRED_DIR = os.path.join(DEP_MASTER_DIR,'predictors/')
 MASK_TIFF_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/masks/')
 CV_OUTPUT_DIR = os.path.join(RUN_MASTER_DIR,'tables/loocv/daily/county/')

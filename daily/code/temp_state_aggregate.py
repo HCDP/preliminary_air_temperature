@@ -19,7 +19,7 @@ from Temp_linear import sigma_Clip, metrics
 
 #SET CONSTANTS AND SETTINGS-----------------------------------------#
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
 COUNTY_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/county/')
 STATE_MAP_DIR = os.path.join(RUN_MASTER_DIR,'tiffs/daily/statewide/')

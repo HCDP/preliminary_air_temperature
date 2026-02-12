@@ -45,7 +45,7 @@ import Temp_linear as tmpl
 #DEFINE CONSTANTS-------------------------------------------------------------
 MASTER_DIR = os.environ.get("PROJECT_ROOT")
 CODE_MASTER_DIR = os.path.join(MASTER_DIR,'daily/code/')
-DEP_MASTER_DIR = os.path.join(MASTER_DIR,'daily/dependencies/')
+DEP_MASTER_DIR = os.path.join(MASTER_DIR,'dependencies/')
 RUN_MASTER_DIR = os.path.join(MASTER_DIR,'data_outputs/')
 PARAM_TIFF_DIR = os.path.join(DEP_MASTER_DIR,'geoTiffs_250m/') #Fixed dir for location of parameter geotiffs
 CLIM_FILL_DIR = os.path.join(DEP_MASTER_DIR,'clim/')
