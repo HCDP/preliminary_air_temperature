@@ -10,7 +10,7 @@ else
     echo "No aggregation date was provided by the environment. Defaulting to yesterday."
 fi
 echo "Aggregation date is: " $CUSTOM_DATE
-#RENAME .ENV AS NEEDED
+
 source /workspace/envs/prod.env
 
 echo "[task.sh] [2/8] Fetching dependencies and station data."

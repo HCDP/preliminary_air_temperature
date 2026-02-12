@@ -11,6 +11,8 @@ else
 fi
 echo "Aggregation date is: " $CUSTOM_DATE
 
+source /workspace/envs/prod.env
+
 if [[ $(date -d "$CUSTOM_DATE" +%s) -lt $(date -d "2019-01-01" +%s) ]]; then
   echo "Using archival workflow"
   bash $(dirname $0)/task_archival.sh
