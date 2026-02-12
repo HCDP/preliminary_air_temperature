@@ -17,5 +17,6 @@ ADD /containers/daily/task.sh /workspace/task.sh
 ADD /containers/daily/task_archival.sh /workspace/task_archival.sh
 ADD /containers/daily/task_current.sh /workspace/task_current.sh
 
+WORKDIR /workspace
 # This container is intended to run the task wrapper at launch, unless otherwise specified at run-time.
-CMD [ "/bin/bash", "/workspace/task.sh" ]
+CMD [ "/bin/bash", "task.sh" ]
