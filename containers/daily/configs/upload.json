@@ -314,34 +314,8 @@
             "rename": "temperature_min_day_oa_partial_station_data_%y_%m.csv",
             "system_id": "ikewai-annotated-data"
         },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hads/Tmin_hads_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/hads/%y/%m/",
-            "rename": "Tmin_hads_%y_%m_processed.csv",
-            "system_id": "ikewai-annotated-data"
-        },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hads/Tmax_hads_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/hads/%y/%m/",
-            "rename": "Tmax_hads_%y_%m_processed.csv",
-            "system_id": "ikewai-annotated-data"
-        },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/madis/Tmin_madis_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/madis/%y/%m/",
-            "rename": "Tmin_madis_%y_%m_processed.csv",
-            "system_id": "ikewai-annotated-data"
-        },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/madis/Tmax_madis_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/madis/%y/%m/",
-            "rename": "Tmax_madis_%y_%m_processed.csv",
-            "system_id": "ikewai-annotated-data"
-        },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hi_mesonet/Tmin_hi_mesonet_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/hi_mesonet/%y/%m/",
-            "rename": "Tmin_hi_mesonet_%y_%m_processed.csv",
-            "system_id": "ikewai-annotated-data"
-        },{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data/hi_mesonet/Tmax_hi_mesonet_%y_%m_processed.csv",
-            "remote_path": "HCDP/temperature/working_data/processed_data/hi_mesonet/%y/%m/",
-            "rename": "Tmax_hi_mesonet_%y_%m_processed.csv",
+            "local_path": "/home/hawaii_climate_products_container/preliminary/air_temp/working_data/processed_data",
+            "remote_path": "HCDP/temperature/working_data/processed_data",
             "system_id": "ikewai-annotated-data"
         }
     ]

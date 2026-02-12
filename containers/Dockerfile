@@ -34,6 +34,7 @@ RUN python3 -m pip install tiffile
 RUN python3 -m pip install python-dotenv
 RUN python3 -m pip install pathlib
 RUN python3 -m pip install xarray
+RUN python3 -m pip install requests
 
 RUN mkdir -p /sync
 RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py

@@ -7,7 +7,7 @@ RUN mkdir -p /workspace
 ADD /monthly /workspace
 
 RUN mkdir -p /workspace/envs
-ADD /envs/month/prod.env /workspace/envs
+ADD /envs/monthly/prod.env /workspace/envs
 
 # Get the container's upload config as specified in the code repo.
 ADD /containers/monthly/configs/upload.json /sync/config.json
