@@ -15,11 +15,11 @@ echo "Aggregation date is: " $CUSTOM_DATE
 
 source /workspace/envs/prod.env
 
-cd $PROJECT_ROOT/code
+cd ${PROJECT_ROOT}code
 
 if [[ $(date -d "$CUSTOM_DATE" +%s) -lt $(date -d "2019-01-01" +%s) ]]; then
   echo "Using archival workflow"
-  bash $PROJECT_ROOT/task_archival.sh
+  bash ${PROJECT_ROOT}task_archival.sh
 else
-  bash $PROJECT_ROOT/task_current.sh
+  bash ${PROJECT_ROOT}task_current.sh
 fi
