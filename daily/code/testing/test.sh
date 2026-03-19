@@ -1,8 +1,11 @@
 #!/bin/bash
+
+set -u
+
 echo "[task.sh] [1/5] Starting Execution."
 export TZ="HST"
 echo "It is currently $(date)."
-if [ $CUSTOM_DATE ]; then
+if [[ -v CUSTOM_DATE ]]; then
     echo "An aggregation date was provided by the environment."
 else
     export CUSTOM_DATE=$(date -d "1 day ago" --iso-8601)
@@ -25,6 +28,8 @@ echo "---himeso_temp_parse.py---"
 python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/himeso_temp_parse.py $CUSTOM_DATE
 echo "---air_temp_aggregate_wrapper.py---"
 python3 -W ignore /home/hawaii_climate_products_container/preliminary/air_temp/daily/code/air_temp_aggregate_wrapper.py $CUSTOM_DATE
+
+set -eo pipefail
 
 echo "[task.sh] [3/5] Mapping Airtemp data on the daily timeframe."
 cd /home/hawaii_climate_products_container/
