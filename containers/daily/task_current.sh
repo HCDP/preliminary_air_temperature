@@ -17,6 +17,8 @@ python3 -W ignore ${PROJECT_ROOT}code/air_temp_aggregate_wrapper.py $CUSTOM_DATE
 
 echo "[task.sh] [3/5] Mapping Airtemp data on the daily timeframe."
 
+set -eo pipefail
+
 echo "---update_predictor_table.py---"
 python3 -W ignore ${PROJECT_ROOT}code/update_predictor_table.py $CUSTOM_DATE
 echo "---county_map_wrapper.py---"

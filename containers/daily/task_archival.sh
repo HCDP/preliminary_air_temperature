@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -u
+set -euo pipefail
 
 echo "[task.sh] [2/5] Aggregating Airtemp data on the daily timeframe."
 
